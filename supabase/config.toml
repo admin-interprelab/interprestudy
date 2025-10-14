@@ -1,0 +1,4 @@
+project_id = "oxpofifrabgethoujvjn"
+
+[functions.consult-ethics]
+verify_jwt = false

@@ -1,0 +1,178 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Send, Loader2, Bot, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export const ConsultationChat = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [organization, setOrganization] = useState<string>("");
+
+  const organizations = [
+    { value: "all", label: "All Standards" },
+    { value: "IMIA", label: "IMIA" },
+    { value: "CCHI", label: "CCHI" },
+    { value: "NBCMI", label: "NBCMI" },
+    { value: "NCIHC", label: "NCIHC" },
+    { value: "CLAS", label: "CLAS" },
+    { value: "CHIA", label: "CHIA" },
+  ];
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = { role: "user", content: input };
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("consult-ethics", {
+        body: {
+          messages: updatedMessages,
+          organization: organization === "all" ? null : organization,
+        },
+      });
+
+      if (error) {
+        console.error("Error calling edge function:", error);
+        toast.error("Failed to get response. Please try again.");
+        return;
+      }
+
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: data.response,
+      };
+      setMessages([...updatedMessages, assistantMessage]);
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  return (
+    <Card className="p-6 bg-card/50 backdrop-blur-sm border-border">
+      <div className="mb-4">
+        <label className="text-sm font-medium text-foreground mb-2 block">
+          Focus on specific standards (optional)
+        </label>
+        <Select value={organization} onValueChange={setOrganization}>
+          <SelectTrigger className="w-full md:w-[280px]">
+            <SelectValue placeholder="All Standards" />
+          </SelectTrigger>
+          <SelectContent>
+            {organizations.map((org) => (
+              <SelectItem key={org.value} value={org.value}>
+                {org.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-4 mb-6 min-h-[400px] max-h-[500px] overflow-y-auto rounded-lg bg-muted/30 p-4">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center py-12">
+            <Bot className="h-12 w-12 text-primary mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              Welcome to Ethics Consultation
+            </h3>
+            <p className="text-muted-foreground max-w-md">
+              Ask me about medical interpreter ethics, standards, or any challenging situations you're facing. I'm here to help clarify and guide you.
+            </p>
+          </div>
+        ) : (
+          messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex gap-3 ${
+                message.role === "assistant" ? "justify-start" : "justify-end"
+              }`}
+            >
+              {message.role === "assistant" && (
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Bot className="h-5 w-5 text-primary" />
+                </div>
+              )}
+              <div
+                className={`rounded-2xl px-4 py-3 max-w-[80%] ${
+                  message.role === "assistant"
+                    ? "bg-card border border-border"
+                    : "bg-primary text-primary-foreground"
+                }`}
+              >
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {message.content}
+                </p>
+              </div>
+              {message.role === "user" && (
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                  <User className="h-5 w-5 text-primary-foreground" />
+                </div>
+              )}
+            </div>
+          ))
+        )}
+        {isLoading && (
+          <div className="flex gap-3 justify-start">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <Bot className="h-5 w-5 text-primary" />
+            </div>
+            <div className="rounded-2xl px-4 py-3 bg-card border border-border">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-2">
+        <Textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Ask about ethics standards, specific scenarios, or guidelines..."
+          className="flex-1 min-h-[80px] resize-none"
+          disabled={isLoading}
+        />
+        <Button
+          onClick={handleSend}
+          disabled={!input.trim() || isLoading}
+          className="self-end"
+          size="icon"
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+    </Card>
+  );
+};
