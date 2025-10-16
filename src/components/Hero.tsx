@@ -1,59 +1,66 @@
-import { BookOpen, Languages, Award, Shield } from "lucide-react";
+import { BookOpen, MessageSquare, Shield, Sparkles, Target, Crown } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
 
 export const Hero = () => {
-  const features = [
-    {
-      icon: Shield,
-      title: "Ethics Guidance",
-      description: "Consult on IMIA, CCHI, NBCMI, NCIHC, CLAS, and CHIA standards",
-    },
-    {
-      icon: Languages,
-      title: "Multi-Language Support",
-      description: "Get terminology translated into your target language",
-    },
-    {
-      icon: BookOpen,
-      title: "Comprehensive Glossary",
-      description: "Access medical terms with definitions and pronunciations",
-    },
-    {
-      icon: Award,
-      title: "All Career Stages",
-      description: "Resources for beginners to experienced professionals",
-    },
-  ];
+  const { userRole } = useAuth();
+  const isPremium = userRole === 'premium' || userRole === 'admin';
 
   return (
-    <section className="text-center py-12">
-      <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-        Your AI-Powered Ethics & Terminology Guide
-      </h2>
-      <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-        Clarify ethical dilemmas, simplify confusing content, and access comprehensive medical terminology resources—all in one place.
-      </p>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-        {features.map((feature, index) => {
-          const Icon = feature.icon;
-          return (
-            <div
-              key={index}
-              className="bg-card rounded-xl p-6 border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="inline-flex p-3 rounded-lg bg-primary/10 mb-4">
-                <Icon className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {feature.description}
-              </p>
-            </div>
-          );
-        })}
+    <div className="text-center space-y-8 py-8">
+      <div className="space-y-4">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          {isPremium && (
+            <Badge className="bg-gradient-premium border-none text-white">
+              <Crown className="w-3 h-3 mr-1" />
+              Premium Active
+            </Badge>
+          )}
+        </div>
+        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          Professional Medical Interpreter Assistant
+        </h1>
+        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+          Master ethics, expand your vocabulary, and practice real-world scenarios
+        </p>
       </div>
-    </section>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+        <div className="p-5 rounded-lg border border-border bg-card/50 backdrop-blur-sm hover:shadow-elegant transition-all hover:-translate-y-1">
+          <Shield className="w-10 h-10 mx-auto mb-3 text-primary" />
+          <h3 className="font-semibold mb-2 text-foreground">Ethics Guidance</h3>
+          <p className="text-xs text-muted-foreground">
+            IMIA, CCHI, NBCMI, NCIHC standards
+          </p>
+        </div>
+
+        <div className="p-5 rounded-lg border border-border bg-card/50 backdrop-blur-sm hover:shadow-elegant transition-all hover:-translate-y-1">
+          <BookOpen className="w-10 h-10 mx-auto mb-3 text-primary" />
+          <h3 className="font-semibold mb-2 text-foreground">Terminology</h3>
+          <p className="text-xs text-muted-foreground">
+            Searchable glossary with AI translations
+          </p>
+        </div>
+
+        <div className="p-5 rounded-lg border border-border bg-card/50 backdrop-blur-sm hover:shadow-elegant transition-all hover:-translate-y-1">
+          <Target className="w-10 h-10 mx-auto mb-3 text-secondary" />
+          <h3 className="font-semibold mb-2 text-foreground">Personal Library</h3>
+          <p className="text-xs text-muted-foreground">
+            Build your custom glossary
+          </p>
+        </div>
+
+        <div className="p-5 rounded-lg border-2 border-accent/30 bg-gradient-to-br from-card/80 to-accent/5 backdrop-blur-sm hover:shadow-premium transition-all hover:-translate-y-1">
+          <Sparkles className="w-10 h-10 mx-auto mb-3 text-accent" />
+          <h3 className="font-semibold mb-2 text-foreground flex items-center justify-center gap-1">
+            Practice Mode
+            {!isPremium && <Crown className="w-4 h-4 text-yellow-500" />}
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            AI scenarios with performance feedback
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
