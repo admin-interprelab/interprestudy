@@ -14,16 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      personalized_glossary: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          definition: string
+          id: string
+          phonetic: string | null
+          target_language: string | null
+          term: string
+          translation: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          definition: string
+          id?: string
+          phonetic?: string | null
+          target_language?: string | null
+          term: string
+          translation?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          definition?: string
+          id?: string
+          phonetic?: string | null
+          target_language?: string | null
+          term?: string
+          translation?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      practice_sessions: {
+        Row: {
+          completed_at: string | null
+          duration_minutes: number | null
+          feedback_score: number | null
+          feedback_text: string | null
+          id: string
+          improvements: string[] | null
+          scenario_type: string
+          strengths: string[] | null
+          target_language: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          duration_minutes?: number | null
+          feedback_score?: number | null
+          feedback_text?: string | null
+          id?: string
+          improvements?: string[] | null
+          scenario_type: string
+          strengths?: string[] | null
+          target_language: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          duration_minutes?: number | null
+          feedback_score?: number | null
+          feedback_text?: string | null
+          id?: string
+          improvements?: string[] | null
+          scenario_type?: string
+          strengths?: string[] | null
+          target_language?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "free" | "premium" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +275,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["free", "premium", "admin"],
+    },
   },
 } as const
