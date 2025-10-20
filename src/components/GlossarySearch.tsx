@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { AddTermDialog } from "./AddTermDialog";
 
 interface GlossaryTerm {
   term: string;
@@ -73,10 +74,12 @@ export const GlossarySearch = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [isSearching, setIsSearching] = useState(false);
   const [aiSearchResults, setAiSearchResults] = useState<string>("");
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
   const languages = [
+    { value: "english", label: "English" },
     { value: "spanish", label: "Spanish" },
     { value: "mandarin", label: "Mandarin" },
     { value: "arabic", label: "Arabic" },
@@ -183,36 +186,49 @@ export const GlossarySearch = () => {
   };
 
   return (
-    <Card className="p-6 bg-card/50 backdrop-blur-sm border-border">
-      <div className="space-y-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search medical terminology (AI-powered)..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAISearch()}
-              className="pl-10"
-            />
-          </div>
-          <Button 
-            onClick={handleAISearch} 
-            disabled={isSearching}
-            className="bg-primary hover:bg-primary/90"
-          >
-            {isSearching ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Searching...
-              </>
-            ) : (
-              <>
-                <Search className="mr-2 h-4 w-4" />
-                AI Search
-              </>
-            )}
-          </Button>
+    <>
+      <AddTermDialog 
+        open={addDialogOpen} 
+        onOpenChange={setAddDialogOpen}
+        userId={user?.id || ''}
+        onTermAdded={() => {
+          toast({
+            title: "Success",
+            description: "Term added to your glossary",
+          });
+        }}
+      />
+      
+      <Card className="p-6 bg-card/50 backdrop-blur-sm border-border">
+        <div className="space-y-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search medical terminology (AI-powered)..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAISearch()}
+                className="pl-10"
+              />
+            </div>
+            <Button 
+              onClick={handleAISearch} 
+              disabled={isSearching}
+              className="bg-primary hover:bg-primary/90"
+            >
+              {isSearching ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Searching...
+                </>
+              ) : (
+                <>
+                  <Search className="mr-2 h-4 w-4" />
+                  AI Search
+                </>
+              )}
+            </Button>
           <Select value={targetLanguage} onValueChange={setTargetLanguage}>
             <SelectTrigger className="w-full md:w-[200px]">
               <SelectValue placeholder="Target Language" />
@@ -271,7 +287,17 @@ export const GlossarySearch = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => addToPersonalGlossary(term)}
+                      onClick={() => {
+                        if (!user) {
+                          toast({
+                            title: "Authentication required",
+                            description: "Please sign in to add terms",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        setAddDialogOpen(true);
+                      }}
                       className="h-7 w-7 p-0 ml-auto"
                       title="Add to My Terms"
                     >
@@ -312,5 +338,6 @@ export const GlossarySearch = () => {
         )}
       </div>
     </Card>
+    </>
   );
 };
