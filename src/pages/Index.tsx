@@ -47,7 +47,7 @@ const Index = () => {
             <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8 h-auto p-1">
               <TabsTrigger value="consultation" className="text-sm lg:text-base py-3">
                 <MessageSquare className="w-4 h-4 mr-2" />
-                Ethics Chat
+                Code of Ethics & Standards
               </TabsTrigger>
               <TabsTrigger value="glossary" className="text-sm lg:text-base py-3">
                 <BookOpen className="w-4 h-4 mr-2" />

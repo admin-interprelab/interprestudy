@@ -2,8 +2,11 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Volume2 } from "lucide-react";
+import { Search, Volume2, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface GlossaryTerm {
   term: string;
@@ -12,31 +15,55 @@ interface GlossaryTerm {
   phonetic?: string;
 }
 
-// Sample glossary data - in production, this would come from a database
+// Medical terminology - frequently referenced by users
 const sampleTerms: GlossaryTerm[] = [
   {
-    term: "Confidentiality",
-    definition: "The ethical principle requiring interpreters to keep all information learned during an assignment private and not to disclose it to unauthorized parties.",
-    category: "Ethics",
-    phonetic: "kon-fi-den-shee-al-i-tee",
+    term: "Hypertension",
+    definition: "High blood pressure; a condition where the force of blood against artery walls is consistently too high, requiring medical management.",
+    category: "Medical",
+    phonetic: "hahy-per-ten-shuhn",
   },
   {
-    term: "Accuracy",
-    definition: "The principle that interpreters must convey the meaning of the source language message faithfully and completely without additions, omissions, or alterations.",
-    category: "Ethics",
-    phonetic: "ak-yur-uh-see",
+    term: "Anticoagulant",
+    definition: "A medication that prevents blood clot formation; commonly called blood thinners. Examples include warfarin and heparin.",
+    category: "Medical",
+    phonetic: "an-tee-koh-ag-yuh-luhnt",
   },
   {
-    term: "Impartiality",
-    definition: "The requirement that interpreters remain neutral and objective, without allowing personal beliefs or relationships to influence their interpretation.",
-    category: "Ethics",
-    phonetic: "im-par-shee-al-i-tee",
+    term: "Diabetes Mellitus",
+    definition: "A metabolic disorder characterized by high blood sugar levels due to insufficient insulin production or insulin resistance.",
+    category: "Medical",
+    phonetic: "dahy-uh-bee-teez mel-i-tuhs",
   },
   {
-    term: "Cultural Broker",
-    definition: "An interpreter who helps bridge cultural gaps and explains cultural practices when necessary for effective communication, while maintaining professional boundaries.",
-    category: "Role",
-    phonetic: "kul-chur-uhl broh-ker",
+    term: "Myocardial Infarction",
+    definition: "Heart attack; occurs when blood flow to part of the heart muscle is blocked, causing tissue damage or death.",
+    category: "Medical",
+    phonetic: "mahy-uh-kahr-dee-uhl in-fahrk-shuhn",
+  },
+  {
+    term: "Chronic Obstructive Pulmonary Disease",
+    definition: "COPD; a progressive lung disease that makes breathing difficult, often caused by smoking or long-term exposure to irritants.",
+    category: "Medical",
+    phonetic: "kron-ik uhb-struhk-tiv puhl-muh-ner-ee dih-zeez",
+  },
+  {
+    term: "Anaphylaxis",
+    definition: "A severe, potentially life-threatening allergic reaction requiring immediate emergency treatment with epinephrine.",
+    category: "Medical",
+    phonetic: "an-uh-fuh-lak-sis",
+  },
+  {
+    term: "Informed Consent",
+    definition: "A patient's voluntary agreement to a medical procedure after being fully informed of risks, benefits, and alternatives.",
+    category: "Medical",
+    phonetic: "in-fawrmd kuhn-sent",
+  },
+  {
+    term: "Dysphagia",
+    definition: "Difficulty swallowing; can be caused by various conditions affecting the throat or esophagus.",
+    category: "Medical",
+    phonetic: "dis-fey-jee-uh",
   },
 ];
 
@@ -44,6 +71,10 @@ export const GlossarySearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("spanish");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [isSearching, setIsSearching] = useState(false);
+  const [aiSearchResults, setAiSearchResults] = useState<string>("");
+  const { toast } = useToast();
+  const { user } = useAuth();
 
   const languages = [
     { value: "spanish", label: "Spanish" },
@@ -55,10 +86,87 @@ export const GlossarySearch = () => {
 
   const categories = [
     { value: "all", label: "All Categories" },
+    { value: "medical", label: "Medical Terminology" },
     { value: "ethics", label: "Ethics" },
     { value: "role", label: "Role & Responsibilities" },
-    { value: "medical", label: "Medical Terminology" },
   ];
+
+  const handleAISearch = async () => {
+    if (!searchTerm.trim()) {
+      toast({
+        title: "Search term required",
+        description: "Please enter a term to search",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('advanced-terminology-search', {
+        body: { 
+          searchTerm, 
+          targetLanguage,
+          category: categoryFilter !== 'all' ? categoryFilter : null
+        }
+      });
+
+      if (error) throw error;
+      
+      setAiSearchResults(data.result);
+      toast({
+        title: "AI Search Complete",
+        description: "Advanced terminology consultation retrieved",
+      });
+    } catch (error) {
+      console.error('AI search error:', error);
+      toast({
+        title: "Search failed",
+        description: error instanceof Error ? error.message : "Failed to search terminology",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const addToPersonalGlossary = async (term: GlossaryTerm) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to add terms to your glossary",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('personalized_glossary')
+        .insert({
+          user_id: user.id,
+          term: term.term,
+          definition: term.definition,
+          category: term.category,
+          phonetic: term.phonetic,
+          target_language: targetLanguage,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Added to My Terms",
+        description: `${term.term} has been added to your personal glossary`,
+      });
+    } catch (error) {
+      console.error('Add to glossary error:', error);
+      toast({
+        title: "Failed to add term",
+        description: error instanceof Error ? error.message : "Could not add to personal glossary",
+        variant: "destructive",
+      });
+    }
+  };
 
   const filteredTerms = sampleTerms.filter((term) => {
     const matchesSearch = term.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -81,12 +189,30 @@ export const GlossarySearch = () => {
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search terminology..."
+              placeholder="Search medical terminology (AI-powered)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAISearch()}
               className="pl-10"
             />
           </div>
+          <Button 
+            onClick={handleAISearch} 
+            disabled={isSearching}
+            className="bg-primary hover:bg-primary/90"
+          >
+            {isSearching ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Searching...
+              </>
+            ) : (
+              <>
+                <Search className="mr-2 h-4 w-4" />
+                AI Search
+              </>
+            )}
+          </Button>
           <Select value={targetLanguage} onValueChange={setTargetLanguage}>
             <SelectTrigger className="w-full md:w-[200px]">
               <SelectValue placeholder="Target Language" />
@@ -114,11 +240,20 @@ export const GlossarySearch = () => {
         </div>
       </div>
 
+      {aiSearchResults && (
+        <Card className="p-6 mb-6 bg-primary/5 border-primary/20">
+          <h3 className="text-lg font-semibold mb-4 text-foreground">AI Consultation Results</h3>
+          <div className="prose prose-sm max-w-none text-foreground">
+            <pre className="whitespace-pre-wrap font-sans text-sm">{aiSearchResults}</pre>
+          </div>
+        </Card>
+      )}
+
       <div className="space-y-4 max-h-[500px] overflow-y-auto">
         {filteredTerms.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
-              No terms found. Try adjusting your search or filters.
+              No terms found. Try adjusting your search or use AI Search for advanced consultation.
             </p>
           </div>
         ) : (
@@ -133,6 +268,15 @@ export const GlossarySearch = () => {
                     <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
                       {term.category}
                     </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => addToPersonalGlossary(term)}
+                      className="h-7 w-7 p-0 ml-auto"
+                      title="Add to My Terms"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
                   </div>
                   {term.phonetic && (
                     <div className="flex items-center gap-2 mb-2">

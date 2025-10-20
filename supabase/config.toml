@@ -8,3 +8,9 @@ verify_jwt = true
 
 [functions.evaluate-performance]
 verify_jwt = true
+
+[functions.advanced-terminology-search]
+verify_jwt = false
+
+[functions.practice-scenario]
+verify_jwt = true
