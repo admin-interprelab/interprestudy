@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, MessageSquare, Sparkles, Target } from "lucide-react";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("consultation");
+  const [activeTab, setActiveTab] = useState("ethics");
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -44,40 +44,60 @@ const Index = () => {
         
         <div className="mt-12 max-w-7xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8 h-auto p-1">
-              <TabsTrigger value="consultation" className="text-sm lg:text-base py-3">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8 h-auto p-2 bg-card/80 border-2 border-primary/20">
+              <TabsTrigger 
+                value="ethics" 
+                className="h-14 text-sm lg:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+              >
                 <MessageSquare className="w-4 h-4 mr-2" />
-                Code of Ethics & Standards
+                Code of Ethics
               </TabsTrigger>
-              <TabsTrigger value="glossary" className="text-sm lg:text-base py-3">
+              <TabsTrigger 
+                value="glossary" 
+                className="h-14 text-sm lg:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+              >
                 <BookOpen className="w-4 h-4 mr-2" />
                 Glossary
               </TabsTrigger>
-              <TabsTrigger value="personal" className="text-sm lg:text-base py-3">
+              <TabsTrigger 
+                value="my-terms" 
+                className="h-14 text-sm lg:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+              >
                 <Target className="w-4 h-4 mr-2" />
                 My Terms
               </TabsTrigger>
-              <TabsTrigger value="practice" className="text-sm lg:text-base py-3">
+              <TabsTrigger 
+                value="practice" 
+                className="h-14 text-sm lg:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+              >
                 <Sparkles className="w-4 h-4 mr-2" />
                 Practice
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="consultation" className="mt-0">
-              <ConsultationChat />
-            </TabsContent>
+            {activeTab === "ethics" && (
+              <TabsContent value="ethics" className="mt-0">
+                <ConsultationChat />
+              </TabsContent>
+            )}
             
-            <TabsContent value="glossary" className="mt-0">
-              <GlossarySearch />
-            </TabsContent>
+            {activeTab === "glossary" && (
+              <TabsContent value="glossary" className="mt-0">
+                <GlossarySearch />
+              </TabsContent>
+            )}
             
-            <TabsContent value="personal" className="mt-0">
-              <PersonalizedGlossary />
-            </TabsContent>
+            {activeTab === "my-terms" && (
+              <TabsContent value="my-terms" className="mt-0">
+                <PersonalizedGlossary />
+              </TabsContent>
+            )}
             
-            <TabsContent value="practice" className="mt-0">
-              <PracticeMode />
-            </TabsContent>
+            {activeTab === "practice" && (
+              <TabsContent value="practice" className="mt-0">
+                <PracticeMode />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </main>

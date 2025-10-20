@@ -122,7 +122,7 @@ export const ConsultationChat = () => {
   };
 
   return (
-    <Card className="p-6 bg-card/50 backdrop-blur-sm border-border">
+    <Card className="p-4 md:p-6 bg-card/80 backdrop-blur-sm border-2 border-primary/20 shadow-lg">
       <div className="mb-4">
         <label className="text-sm font-medium text-foreground mb-2 block">
           Focus on specific standards (optional)
@@ -141,7 +141,7 @@ export const ConsultationChat = () => {
         </Select>
       </div>
 
-      <div className="space-y-4 mb-6 min-h-[400px] max-h-[500px] overflow-y-auto rounded-lg bg-muted/30 p-4">
+      <div className="space-y-4 mb-6 min-h-[400px] max-h-[500px] overflow-y-auto rounded-lg bg-muted/50 backdrop-blur-sm p-4 border-2 border-primary/10">
         {messages.length === 0 ? (
           <div className="flex flex-col h-full">
             <div className="flex flex-col items-center justify-center text-center py-8">
