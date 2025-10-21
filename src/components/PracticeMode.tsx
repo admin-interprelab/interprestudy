@@ -3,11 +3,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Play, StopCircle, Upload, Loader2 } from "lucide-react";
+import { Play, StopCircle, Upload, Loader2, Eye, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { PracticeSettingsComponent, PracticeSettings } from "./PracticeSettings";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const detailedFeedback = `Alright, let's review your performance using the sandwich method.
 
@@ -53,6 +54,7 @@ export const PracticeMode = () => {
     providerAccent: "american",
     voiceEnabled: false,
   });
+  const [showSampleFeedback, setShowSampleFeedback] = useState(false);
   const { toast } = useToast();
   const { user, userRole } = useAuth();
 
@@ -199,7 +201,49 @@ export const PracticeMode = () => {
   };
 
   return (
-    <div>
+    <div className="space-y-6">
+      {/* Sample Feedback Showcase */}
+      <Card className="p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/30 shadow-lg">
+        <div className="flex items-start gap-4 mb-4">
+          <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+            <Eye className="h-6 w-6 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-foreground mb-2">
+              AI Performance Analysis Sample
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              See the depth and quality of feedback you'll receive from our AI coach. This comprehensive analysis covers strengths, areas for improvement, and actionable coaching plans based on professional interpreting standards.
+            </p>
+          </div>
+        </div>
+        
+        <Collapsible open={showSampleFeedback} onOpenChange={setShowSampleFeedback}>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" className="w-full justify-between">
+              {showSampleFeedback ? "Hide Sample Feedback" : "View Sample Feedback"}
+              {showSampleFeedback ? (
+                <ChevronUp className="h-4 w-4 ml-2" />
+              ) : (
+                <ChevronDown className="h-4 w-4 ml-2" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            <Card className="p-6 bg-card/80 backdrop-blur border-border">
+              <div className="prose prose-sm max-w-none text-foreground">
+                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed bg-muted/50 p-4 rounded-lg">{detailedFeedback}</pre>
+              </div>
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs text-muted-foreground italic">
+                  * This is an example of the detailed, standards-based feedback you'll receive after completing a practice scenario. Premium members get personalized AI evaluation tailored to their specific performance.
+                </p>
+              </div>
+            </Card>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+
       <PracticeSettingsComponent 
         onSettingsChange={setSettings} 
         currentSettings={settings}
