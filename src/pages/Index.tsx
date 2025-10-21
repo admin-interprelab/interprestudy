@@ -12,14 +12,7 @@ import { BookOpen, MessageSquare, Sparkles, Target } from "lucide-react";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("ethics");
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
-    }
-  }, [user, loading, navigate]);
+  const { loading } = useAuth();
 
   if (loading) {
     return (
@@ -30,10 +23,6 @@ const Index = () => {
         </div>
       </div>
     );
-  }
-
-  if (!user) {
-    return null;
   }
 
   return (

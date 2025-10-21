@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Send, Loader2, Bot, User, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Message {
   role: "user" | "assistant";
@@ -57,6 +58,7 @@ export const ConsultationChat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [organization, setOrganization] = useState<string>("");
   const [showScenarios, setShowScenarios] = useState(true);
+  const { user } = useAuth();
 
   const organizations = [
     { value: "all", label: "All Standards" },
@@ -70,6 +72,12 @@ export const ConsultationChat = () => {
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
+
+    if (!user) {
+      toast.error("Please sign in to chat with the ethics assistant");
+      window.location.href = '/auth';
+      return;
+    }
 
     const userMessage: Message = { role: "user", content: input };
     const updatedMessages = [...messages, userMessage];

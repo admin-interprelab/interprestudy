@@ -76,10 +76,11 @@ export const PracticeMode = () => {
   const generateScenario = async () => {
     if (!user) {
       toast({
-        title: "Authentication required",
+        title: "Sign in required",
         description: "Please sign in to generate practice scenarios",
         variant: "destructive",
       });
+      window.location.href = '/auth';
       return;
     }
 
@@ -150,10 +151,11 @@ export const PracticeMode = () => {
 
     if (!user) {
       toast({
-        title: "Authentication required",
+        title: "Sign in required",
         description: "Please sign in to get performance evaluation",
         variant: "destructive",
       });
+      window.location.href = '/auth';
       return;
     }
 

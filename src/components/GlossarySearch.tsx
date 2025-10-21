@@ -71,7 +71,6 @@ const sampleTerms: GlossaryTerm[] = [
 export const GlossarySearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("spanish");
-  const [categoryFilter, setCategoryFilter] = useState("all");
   const [isSearching, setIsSearching] = useState(false);
   const [aiSearchResults, setAiSearchResults] = useState<string>("");
   const [aiImageUrl, setAiImageUrl] = useState<string>("");
@@ -88,14 +87,18 @@ export const GlossarySearch = () => {
     { value: "russian", label: "Russian" },
   ];
 
-  const categories = [
-    { value: "all", label: "All Categories" },
-    { value: "medical", label: "Medical Terminology" },
-    { value: "ethics", label: "Ethics" },
-    { value: "role", label: "Role & Responsibilities" },
-  ];
 
   const handleAISearch = async () => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to use AI search",
+        variant: "destructive",
+      });
+      window.location.href = '/auth';
+      return;
+    }
+
     if (!searchTerm.trim()) {
       toast({
         title: "Search term required",
@@ -110,8 +113,7 @@ export const GlossarySearch = () => {
       const { data, error } = await supabase.functions.invoke('advanced-terminology-search', {
         body: { 
           searchTerm, 
-          targetLanguage,
-          category: categoryFilter !== 'all' ? categoryFilter : null
+          targetLanguage
         }
       });
 
@@ -176,9 +178,7 @@ export const GlossarySearch = () => {
   const filteredTerms = sampleTerms.filter((term) => {
     const matchesSearch = term.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          term.definition.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || 
-                           term.category.toLowerCase() === categoryFilter.toLowerCase();
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
   const speakPhonetic = (phonetic: string) => {
@@ -240,18 +240,6 @@ export const GlossarySearch = () => {
                   {languages.map((lang) => (
                     <SelectItem key={lang.value} value={lang.value}>
                       {lang.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="flex-1 h-12 border-2 border-primary/30">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-2 border-primary/30">
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
