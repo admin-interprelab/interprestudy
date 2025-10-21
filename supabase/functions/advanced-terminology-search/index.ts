@@ -106,9 +106,9 @@ Keep it clean and professional. No extra formatting.`;
     );
 
   } catch (error) {
-    console.error('Error in advanced-terminology-search:', error);
+    console.error('[Internal] Error in advanced-terminology-search:', error);
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'Search failed' 
+      error: 'Service temporarily unavailable. Please try again later.' 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -119,9 +119,9 @@ Provide the scenario with clear speaker turns (Doctor, Patient, expected interpr
     });
 
   } catch (error) {
-    console.error('Error in practice-scenario:', error);
+    console.error('[Internal] Error in practice-scenario:', error);
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'Scenario generation failed' 
+      error: 'Service temporarily unavailable. Please try again later.' 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

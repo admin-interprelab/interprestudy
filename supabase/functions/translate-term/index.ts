@@ -71,9 +71,9 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error in translate-term:', error);
+    console.error('[Internal] Error in translate-term:', error);
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'Translation failed' 
+      error: 'Service temporarily unavailable. Please try again later.' 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

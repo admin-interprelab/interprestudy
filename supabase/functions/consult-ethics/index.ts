@@ -99,9 +99,9 @@ ${organization ? `Focus particularly on ${organization} standards for this consu
     );
 
   } catch (error) {
-    console.error('Error in consult-ethics function:', error);
+    console.error('[Internal] Error in consult-ethics function:', error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: 'Service temporarily unavailable. Please try again later.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
