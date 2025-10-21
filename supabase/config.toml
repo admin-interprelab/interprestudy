@@ -10,10 +10,10 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.advanced-terminology-search]
-verify_jwt = false
+verify_jwt = true
 
 [functions.practice-scenario]
 verify_jwt = true
 
 [functions.generate-term-image]
-verify_jwt = false
+verify_jwt = true

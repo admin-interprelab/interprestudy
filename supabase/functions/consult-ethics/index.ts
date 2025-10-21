@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,7 +13,26 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, organization } = await req.json();
+    const messageSchema = z.object({
+      role: z.enum(['user', 'assistant']),
+      content: z.string().max(10000, "Message content too long")
+    });
+
+    const requestSchema = z.object({
+      messages: z.array(messageSchema).min(1, "At least one message is required").max(50, "Too many messages"),
+      organization: z.string().max(100, "Organization name too long").optional()
+    });
+
+    const parsed = requestSchema.safeParse(await req.json());
+    
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: parsed.error.issues.map(i => i.message).join(', ') }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const { messages, organization } = parsed.data;
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {

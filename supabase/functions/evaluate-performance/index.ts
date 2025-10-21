@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,7 +13,22 @@ serve(async (req) => {
   }
 
   try {
-    const { transcript, scenarioType, targetLanguage } = await req.json();
+    const requestSchema = z.object({
+      transcript: z.string().trim().min(1, "Transcript is required").max(50000, "Transcript too long"),
+      scenarioType: z.string().trim().min(1, "Scenario type is required").max(100, "Scenario type too long"),
+      targetLanguage: z.string().trim().min(1, "Target language is required").max(50, "Language name too long")
+    });
+
+    const parsed = requestSchema.safeParse(await req.json());
+    
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: parsed.error.issues.map(i => i.message).join(', ') }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const { transcript, scenarioType, targetLanguage } = parsed.data;
     
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {

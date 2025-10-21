@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,14 +12,22 @@ serve(async (req) => {
   }
 
   try {
-    const { searchTerm, targetLanguage } = await req.json();
+    const requestSchema = z.object({
+      searchTerm: z.string().trim().min(1, "Search term is required").max(200, "Search term too long"),
+      targetLanguage: z.string().trim().min(1, "Target language is required").max(50, "Language name too long"),
+      category: z.string().max(100).optional()
+    });
+
+    const parsed = requestSchema.safeParse(await req.json());
     
-    if (!searchTerm || !targetLanguage) {
+    if (!parsed.success) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ error: 'Invalid input', details: parsed.error.issues.map(i => i.message).join(', ') }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    
+    const { searchTerm, targetLanguage } = parsed.data;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
