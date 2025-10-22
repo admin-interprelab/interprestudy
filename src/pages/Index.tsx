@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
-import { ConsultationChat } from "@/components/ConsultationChat";
-import { GlossarySearch } from "@/components/GlossarySearch";
-import { PersonalizedGlossary } from "@/components/PersonalizedGlossary";
-import { PracticeMode } from "@/components/PracticeMode";
+import { EthicsConsultation } from "@/components/EthicsConsultation";
+import { TerminologyHub } from "@/components/TerminologyHub";
+import { VoicePracticeMode } from "@/components/VoicePracticeMode";
+import { RxMedications } from "@/components/RxMedications";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, MessageSquare, Sparkles, Target } from "lucide-react";
+import { BookOpen, Scale, Sparkles, Pill } from "lucide-react";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("ethics");
@@ -38,22 +38,22 @@ const Index = () => {
                 value="ethics" 
                 className="h-14 text-sm lg:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
               >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Code of Ethics
+                <Scale className="w-4 h-4 mr-2" />
+                Ethics & Standards
               </TabsTrigger>
               <TabsTrigger 
-                value="glossary" 
+                value="terminology" 
                 className="h-14 text-sm lg:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
               >
                 <BookOpen className="w-4 h-4 mr-2" />
-                Glossary
+                Terminology
               </TabsTrigger>
               <TabsTrigger 
-                value="my-terms" 
+                value="medications" 
                 className="h-14 text-sm lg:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
               >
-                <Target className="w-4 h-4 mr-2" />
-                My Terms
+                <Pill className="w-4 h-4 mr-2" />
+                Rx Reference
               </TabsTrigger>
               <TabsTrigger 
                 value="practice" 
@@ -64,29 +64,21 @@ const Index = () => {
               </TabsTrigger>
             </TabsList>
             
-            {activeTab === "ethics" && (
-              <TabsContent value="ethics" className="mt-0">
-                <ConsultationChat />
-              </TabsContent>
-            )}
+            <TabsContent value="ethics" className="mt-0">
+              <EthicsConsultation />
+            </TabsContent>
             
-            {activeTab === "glossary" && (
-              <TabsContent value="glossary" className="mt-0">
-                <GlossarySearch />
-              </TabsContent>
-            )}
+            <TabsContent value="terminology" className="mt-0">
+              <TerminologyHub />
+            </TabsContent>
             
-            {activeTab === "my-terms" && (
-              <TabsContent value="my-terms" className="mt-0">
-                <PersonalizedGlossary />
-              </TabsContent>
-            )}
+            <TabsContent value="medications" className="mt-0">
+              <RxMedications />
+            </TabsContent>
             
-            {activeTab === "practice" && (
-              <TabsContent value="practice" className="mt-0">
-                <PracticeMode />
-              </TabsContent>
-            )}
+            <TabsContent value="practice" className="mt-0">
+              <VoicePracticeMode />
+            </TabsContent>
           </Tabs>
         </div>
       </main>
