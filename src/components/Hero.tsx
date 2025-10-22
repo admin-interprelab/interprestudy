@@ -1,23 +1,20 @@
 import { BookOpen, MessageSquare, Shield, Sparkles, Target, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
-
 export const Hero = () => {
-  const { userRole } = useAuth();
+  const {
+    userRole
+  } = useAuth();
   const isPremium = userRole === 'premium' || userRole === 'admin';
-
-  return (
-    <div className="text-center space-y-8 py-8">
+  return <div className="text-center space-y-8 py-8">
       <div className="space-y-4">
         <div className="flex items-center justify-center gap-2 mb-2">
-          {isPremium && (
-            <Badge className="bg-gradient-premium border-none text-white">
+          {isPremium && <Badge className="bg-gradient-premium border-none text-white">
               <Crown className="w-3 h-3 mr-1" />
               Premium Active
-            </Badge>
-          )}
+            </Badge>}
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-indigo-950 md:text-4xl">
           Professional Medical Interpreter Assistant
         </h1>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
@@ -61,6 +58,5 @@ export const Hero = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
