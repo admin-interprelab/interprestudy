@@ -6,6 +6,9 @@ verify_jwt = true
 [functions.translate-term]
 verify_jwt = true
 
+[functions.translate-medication]
+verify_jwt = true
+
 [functions.evaluate-performance]
 verify_jwt = true
 

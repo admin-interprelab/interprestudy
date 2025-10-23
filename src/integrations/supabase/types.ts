@@ -116,6 +116,48 @@ export type Database = {
         }
         Relationships: []
       }
+      rx_medications: {
+        Row: {
+          alternative_names: string[] | null
+          brand_names: string[] | null
+          created_at: string
+          direct_translation: string
+          generic_names: string[] | null
+          id: string
+          image_url: string | null
+          medication_name: string
+          target_language: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alternative_names?: string[] | null
+          brand_names?: string[] | null
+          created_at?: string
+          direct_translation: string
+          generic_names?: string[] | null
+          id?: string
+          image_url?: string | null
+          medication_name: string
+          target_language: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alternative_names?: string[] | null
+          brand_names?: string[] | null
+          created_at?: string
+          direct_translation?: string
+          generic_names?: string[] | null
+          id?: string
+          image_url?: string | null
+          medication_name?: string
+          target_language?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
