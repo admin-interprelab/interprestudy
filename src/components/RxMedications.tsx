@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,16 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface MedicationEntry {
-  id: string;
-  medication_name: string;
-  direct_translation: string;
-  generic_names?: string[];
-  brand_names?: string[];
-  target_language: string;
-  image_url?: string;
-  alternative_names?: string[];
-}
+type MedicationEntry = Tables<"rx_medications">;
 
 export const RxMedications = () => {
   const [medications, setMedications] = useState<MedicationEntry[]>([]);
