@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,7 +13,29 @@ serve(async (req) => {
   }
 
   try {
-    const { medicationName, targetLanguage, includePremiumInfo } = await req.json();
+    const requestSchema = z.object({
+      medicationName: z.string().trim().min(1, 'Medication name is required').max(200, 'Medication name is too long'),
+      targetLanguage: z.string().trim().min(1, 'Target language is required').max(50, 'Language name is too long'),
+      includePremiumInfo: z.boolean().optional().default(false)
+    });
+
+    const body = await req.json();
+    const parsed = requestSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input', 
+          details: parsed.error.issues.map(i => i.message).join(', ') 
+        }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const { medicationName, targetLanguage, includePremiumInfo } = parsed.data;
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
