@@ -126,7 +126,9 @@ export const GlossarySearch = () => {
         description: "Advanced terminology consultation retrieved",
       });
     } catch (error) {
-      console.error('AI search error:', error);
+      if (import.meta.env.DEV) {
+        console.error('AI search error:', error);
+      }
       toast({
         title: "Search failed",
         description: error instanceof Error ? error.message : "Failed to search terminology",
@@ -166,7 +168,9 @@ export const GlossarySearch = () => {
         description: `${term.term} has been added to your personal glossary`,
       });
     } catch (error) {
-      console.error('Add to glossary error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Add to glossary error:', error);
+      }
       toast({
         title: "Failed to add term",
         description: error instanceof Error ? error.message : "Could not add to personal glossary",

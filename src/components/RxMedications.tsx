@@ -44,7 +44,9 @@ export const RxMedications = () => {
       if (error) throw error;
       setMedications(data || []);
     } catch (error) {
-      console.error('Error fetching medications:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching medications:', error);
+      }
       toast({
         title: "Error",
         description: "Failed to load medications",
@@ -98,7 +100,9 @@ export const RxMedications = () => {
       setDialogOpen(false);
       fetchMedications();
     } catch (error) {
-      console.error('Error adding medication:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error adding medication:', error);
+      }
       toast({
         title: "Error",
         description: "Failed to add medication",
@@ -124,7 +128,9 @@ export const RxMedications = () => {
       });
       fetchMedications();
     } catch (error) {
-      console.error('Error deleting medication:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error deleting medication:', error);
+      }
       toast({
         title: "Error",
         description: "Failed to delete medication",

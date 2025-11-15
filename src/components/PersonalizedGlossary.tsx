@@ -54,7 +54,9 @@ export const PersonalizedGlossary = () => {
       if (error) throw error;
       setEntries(data || []);
     } catch (error) {
-      console.error('Error fetching glossary:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching glossary:', error);
+      }
       toast({
         title: "Error",
         description: "Failed to load your glossary",
@@ -100,7 +102,9 @@ export const PersonalizedGlossary = () => {
       setDialogOpen(false);
       fetchEntries();
     } catch (error) {
-      console.error('Error adding entry:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error adding entry:', error);
+      }
       toast({
         title: "Error",
         description: "Failed to add term",
@@ -124,7 +128,9 @@ export const PersonalizedGlossary = () => {
       });
       fetchEntries();
     } catch (error) {
-      console.error('Error deleting entry:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error deleting entry:', error);
+      }
       toast({
         title: "Error",
         description: "Failed to delete term",
@@ -168,7 +174,9 @@ export const PersonalizedGlossary = () => {
       });
       fetchEntries();
     } catch (error) {
-      console.error('Translation error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Translation error:', error);
+      }
       toast({
         title: "Translation failed",
         description: "Please try again",

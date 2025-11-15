@@ -70,7 +70,9 @@ export const EthicsConsultation = () => {
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('Ethics consultation error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Ethics consultation error:', error);
+      }
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to get response",

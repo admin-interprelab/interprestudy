@@ -82,7 +82,9 @@ export const AddTermDialog = ({ open, onOpenChange, userId, onTermAdded }: AddTe
       if (transMatch) setTranslation(transMatch[1].trim());
       
     } catch (error) {
-      console.error('Error fetching term details:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching term details:', error);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +109,9 @@ export const AddTermDialog = ({ open, onOpenChange, userId, onTermAdded }: AddTe
         description: "Visual reference created successfully",
       });
     } catch (error) {
-      console.error('Error generating image:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error generating image:', error);
+      }
       toast({
         title: "Image generation failed",
         description: error instanceof Error ? error.message : "Could not generate image",
@@ -160,7 +164,9 @@ export const AddTermDialog = ({ open, onOpenChange, userId, onTermAdded }: AddTe
       onTermAdded();
       onOpenChange(false);
     } catch (error) {
-      console.error('Error saving term:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error saving term:', error);
+      }
       toast({
         title: "Failed to save term",
         description: error instanceof Error ? error.message : "Could not save to glossary",

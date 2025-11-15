@@ -95,7 +95,9 @@ export const VoicePracticeMode = () => {
         description: "Click Start to begin voice practice",
       });
     } catch (error) {
-      console.error('Scenario generation error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Scenario generation error:', error);
+      }
       toast({
         title: "Generation failed",
         description: error instanceof Error ? error.message : "Failed to generate scenario",

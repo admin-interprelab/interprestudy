@@ -7,6 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Stethoscope } from 'lucide-react';
+import { z } from 'zod';
+import { useToast } from '@/hooks/use-toast';
+
+const emailSchema = z.string().trim().email('Invalid email format').max(255, 'Email is too long');
+const passwordSchema = z.string().min(8, 'Password must be at least 8 characters').max(128, 'Password is too long');
 
 export default function Auth() {
   const [loginEmail, setLoginEmail] = useState('');
@@ -18,6 +23,7 @@ export default function Auth() {
   
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Redirect if already logged in
   if (user) {
@@ -27,12 +33,38 @@ export default function Auth() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate email
+    const emailValidation = emailSchema.safeParse(loginEmail);
+    if (!emailValidation.success) {
+      toast({
+        title: "Invalid email",
+        description: emailValidation.error.errors[0].message,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate password
+    const passwordValidation = passwordSchema.safeParse(loginPassword);
+    if (!passwordValidation.success) {
+      toast({
+        title: "Invalid password",
+        description: passwordValidation.error.errors[0].message,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
     try {
       await signIn(loginEmail, loginPassword);
       navigate('/');
     } catch (error) {
-      console.error('Login error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Login error:', error);
+      }
+      // Error toast is already shown by useAuth
     } finally {
       setLoading(false);
     }
@@ -40,12 +72,48 @@ export default function Auth() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate name
+    if (!signupName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter your full name",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate email
+    const emailValidation = emailSchema.safeParse(signupEmail);
+    if (!emailValidation.success) {
+      toast({
+        title: "Invalid email",
+        description: emailValidation.error.errors[0].message,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate password
+    const passwordValidation = passwordSchema.safeParse(signupPassword);
+    if (!passwordValidation.success) {
+      toast({
+        title: "Invalid password",
+        description: passwordValidation.error.errors[0].message,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
     try {
       await signUp(signupEmail, signupPassword, signupName);
       navigate('/');
     } catch (error) {
-      console.error('Signup error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Signup error:', error);
+      }
+      // Error toast is already shown by useAuth
     } finally {
       setLoading(false);
     }
