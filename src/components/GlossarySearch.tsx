@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { AddTermDialog } from "./AddTermDialog";
+import { sanitizeAIContent } from "@/lib/sanitize";
 
 interface GlossaryTerm {
   term: string;
@@ -269,9 +270,10 @@ export const GlossarySearch = () => {
                 </div>
               )}
               <div className="bg-card/80 backdrop-blur rounded-lg p-4 border border-border">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground">
-                  {aiSearchResults}
-                </pre>
+                <pre 
+                  className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground"
+                  dangerouslySetInnerHTML={{ __html: sanitizeAIContent(aiSearchResults) }}
+                />
               </div>
             </div>
           </Card>

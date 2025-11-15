@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { PracticeSettingsComponent, PracticeSettings } from "./PracticeSettings";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { sanitizeAIContent } from "@/lib/sanitize";
 
 const detailedFeedback = `Alright, let's review your performance using the sandwich method.
 
@@ -313,7 +314,10 @@ export const PracticeMode = () => {
             <Card className="p-4 bg-primary/5 border-primary/20">
               <h3 className="font-semibold mb-2 text-foreground">Practice Scenario</h3>
               <div className="prose prose-sm max-w-none text-foreground">
-                <pre className="whitespace-pre-wrap font-sans text-sm">{generatedScenario}</pre>
+                <pre 
+                  className="whitespace-pre-wrap font-sans text-sm"
+                  dangerouslySetInnerHTML={{ __html: sanitizeAIContent(generatedScenario) }}
+                />
               </div>
             </Card>
           )}
@@ -370,7 +374,10 @@ export const PracticeMode = () => {
             <Card className="mt-6 p-6 bg-card border-border">
               <h3 className="text-lg font-semibold mb-4 text-foreground">Performance Feedback</h3>
               <div className="prose prose-sm max-w-none text-foreground">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">{feedback}</pre>
+                <pre 
+                  className="whitespace-pre-wrap font-sans text-sm leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: sanitizeAIContent(feedback) }}
+                />
               </div>
             </Card>
           )}

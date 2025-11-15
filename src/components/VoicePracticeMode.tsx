@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { PracticeSettingsComponent, PracticeSettings } from "./PracticeSettings";
+import { sanitizeAIContent } from "@/lib/sanitize";
 
 const sampleFeedbackPreview = `Alright, let's review your performance using the sandwich method.
 
@@ -285,7 +286,10 @@ export const VoicePracticeMode = () => {
             <Card className="p-6 bg-card border-border">
               <h3 className="text-lg font-semibold mb-4 text-foreground">Practice Transcript</h3>
               <div className="prose prose-sm max-w-none text-foreground mb-6">
-                <pre className="whitespace-pre-wrap font-sans text-sm">{transcript}</pre>
+                <pre 
+                  className="whitespace-pre-wrap font-sans text-sm"
+                  dangerouslySetInnerHTML={{ __html: sanitizeAIContent(transcript) }}
+                />
               </div>
 
               {/* Feedback Preview with Fade */}
@@ -293,7 +297,10 @@ export const VoicePracticeMode = () => {
                 <div className="bg-gradient-to-b from-card to-transparent pb-32 overflow-hidden">
                   <h3 className="text-lg font-semibold mb-4 text-foreground">Performance Analysis</h3>
                   <div className="prose prose-sm max-w-none text-foreground">
-                    <pre className="whitespace-pre-wrap font-sans text-sm">{sampleFeedbackPreview}</pre>
+                    <pre 
+                      className="whitespace-pre-wrap font-sans text-sm"
+                      dangerouslySetInnerHTML={{ __html: sanitizeAIContent(sampleFeedbackPreview) }}
+                    />
                   </div>
                 </div>
                 
