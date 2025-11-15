@@ -7,6 +7,7 @@ import { EthicsConsultation } from "@/components/EthicsConsultation";
 import { TerminologyHub } from "@/components/TerminologyHub";
 import { VoicePracticeMode } from "@/components/VoicePracticeMode";
 import { RxMedications } from "@/components/RxMedications";
+import { CrosswordPuzzle } from "@/components/CrosswordPuzzle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Scale, Sparkles, Pill } from "lucide-react";
 
@@ -77,7 +78,10 @@ const Index = () => {
             </TabsContent>
             
             <TabsContent value="practice" className="mt-0">
-              <VoicePracticeMode />
+              <div className="space-y-6">
+                <VoicePracticeMode />
+                <CrosswordPuzzle />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
