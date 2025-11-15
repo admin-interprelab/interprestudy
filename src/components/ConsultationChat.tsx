@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Send, Loader2, Bot, User, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { sanitizeAIContent } from "@/lib/sanitize";
 import { useAuth } from "@/hooks/useAuth";
 
 interface Message {
@@ -211,9 +212,10 @@ export const ConsultationChat = () => {
                     : "bg-primary text-primary-foreground"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                  {message.content}
-                </p>
+                <p 
+                  className="text-sm whitespace-pre-wrap leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: sanitizeAIContent(message.content) }}
+                />
               </div>
               {message.role === "user" && (
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">

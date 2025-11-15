@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { sanitizeAIContent } from "@/lib/sanitize";
 
 interface Message {
   role: "user" | "assistant";
@@ -146,7 +147,10 @@ export const EthicsConsultation = () => {
                       : "bg-secondary text-secondary-foreground"
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p 
+                    className="text-sm whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: sanitizeAIContent(message.content) }}
+                  />
                 </div>
               </div>
             ))}
