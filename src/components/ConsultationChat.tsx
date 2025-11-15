@@ -95,7 +95,9 @@ export const ConsultationChat = () => {
       });
 
       if (error) {
-        console.error("Error calling edge function:", error);
+        if (import.meta.env.DEV) {
+          console.error("Error calling edge function:", error);
+        }
         toast.error("Failed to get response. Please try again.");
         return;
       }
@@ -111,7 +113,9 @@ export const ConsultationChat = () => {
       };
       setMessages([...updatedMessages, assistantMessage]);
     } catch (error) {
-      console.error("Error:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error:", error);
+      }
       toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);

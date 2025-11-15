@@ -114,7 +114,9 @@ export const PracticeMode = () => {
         description: "Your custom practice scenario is ready",
       });
     } catch (error) {
-      console.error('Scenario generation error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Scenario generation error:', error);
+      }
       toast({
         title: "Generation failed",
         description: error instanceof Error ? error.message : "Failed to generate scenario",
@@ -189,7 +191,9 @@ export const PracticeMode = () => {
         description: `Score: ${data.score}/100`,
       });
     } catch (error) {
-      console.error('Evaluation error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Evaluation error:', error);
+      }
       toast({
         title: "Evaluation failed",
         description: error instanceof Error ? error.message : "Failed to evaluate performance",
