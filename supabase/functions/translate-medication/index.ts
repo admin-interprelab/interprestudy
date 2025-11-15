@@ -53,6 +53,25 @@ serve(async (req) => {
       throw new Error('Authentication failed');
     }
 
+    // Verify user has premium or admin role if requesting premium info
+    if (includePremiumInfo) {
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      if (roleError || !roleData || (roleData.role !== 'premium' && roleData.role !== 'admin')) {
+        return new Response(
+          JSON.stringify({ error: 'Premium subscription required for detailed medication information' }),
+          { 
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
+    }
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
