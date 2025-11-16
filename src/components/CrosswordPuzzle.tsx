@@ -6,10 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, Play, RotateCcw, Timer, Trophy, Lightbulb } from "lucide-react";
+import { Loader2, Play, RotateCcw, Timer, Trophy, Lightbulb, Download } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import jsPDF from "jspdf";
 
 interface GlossaryEntry {
   id: string;
@@ -362,6 +363,94 @@ export const CrosswordPuzzle = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const exportToPDF = () => {
+    const pdf = new jsPDF();
+    const cellSize = 10;
+    const startX = 20;
+    const startY = 30;
+    
+    // Title
+    pdf.setFontSize(16);
+    pdf.text("Medical Terminology Crossword", 20, 20);
+    pdf.setFontSize(10);
+    pdf.text(`Difficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`, 20, 26);
+    
+    // Draw grid
+    pdf.setFontSize(8);
+    grid.forEach((row, rowIdx) => {
+      row.forEach((cell, colIdx) => {
+        if (!cell.isBlocked) {
+          const x = startX + colIdx * cellSize;
+          const y = startY + rowIdx * cellSize;
+          
+          // Draw cell border
+          pdf.rect(x, y, cellSize, cellSize);
+          
+          // Draw number if exists
+          if (cell.number) {
+            pdf.setFontSize(6);
+            pdf.text(cell.number.toString(), x + 1, y + 3);
+          }
+        }
+      });
+    });
+    
+    // Add clues on a new page
+    pdf.addPage();
+    pdf.setFontSize(14);
+    pdf.text("Clues", 20, 20);
+    
+    let yPos = 30;
+    
+    // Across clues
+    pdf.setFontSize(12);
+    pdf.text("Across", 20, yPos);
+    yPos += 8;
+    pdf.setFontSize(9);
+    
+    crosswordWords
+      .filter(w => w.direction === 'across')
+      .forEach(w => {
+        const lines = pdf.splitTextToSize(`${w.number}. ${w.clue}`, 170);
+        pdf.text(lines, 20, yPos);
+        yPos += lines.length * 5 + 2;
+        
+        if (yPos > 270) {
+          pdf.addPage();
+          yPos = 20;
+        }
+      });
+    
+    yPos += 5;
+    
+    // Down clues
+    pdf.setFontSize(12);
+    pdf.text("Down", 20, yPos);
+    yPos += 8;
+    pdf.setFontSize(9);
+    
+    crosswordWords
+      .filter(w => w.direction === 'down')
+      .forEach(w => {
+        const lines = pdf.splitTextToSize(`${w.number}. ${w.clue}`, 170);
+        pdf.text(lines, 20, yPos);
+        yPos += lines.length * 5 + 2;
+        
+        if (yPos > 270) {
+          pdf.addPage();
+          yPos = 20;
+        }
+      });
+    
+    // Save PDF
+    pdf.save(`crossword-puzzle-${difficulty}-${Date.now()}.pdf`);
+    
+    toast({
+      title: "PDF Downloaded",
+      description: "Your crossword puzzle has been exported successfully",
+    });
+  };
+
   if (!user) {
     return (
       <Card className="p-6 bg-card/80 backdrop-blur border-2 border-primary/20">
@@ -378,12 +467,20 @@ export const CrosswordPuzzle = () => {
             <Trophy className="w-5 h-5 text-primary" />
             Medical Terminology Crossword
           </h3>
-          {isPlaying && (
-            <Badge variant="secondary" className="flex items-center gap-2 text-lg px-4 py-2">
-              <Timer className="w-4 h-4" />
-              {formatTime(timeElapsed)}
-            </Badge>
-          )}
+          <div className="flex items-center gap-3">
+            {isPlaying && crosswordWords.length > 0 && (
+              <Button onClick={exportToPDF} variant="outline" size="sm">
+                <Download className="w-4 h-4 mr-2" />
+                Export PDF
+              </Button>
+            )}
+            {isPlaying && (
+              <Badge variant="secondary" className="flex items-center gap-2 text-lg px-4 py-2">
+                <Timer className="w-4 h-4" />
+                {formatTime(timeElapsed)}
+              </Badge>
+            )}
+          </div>
         </div>
 
         {!isPlaying && (
