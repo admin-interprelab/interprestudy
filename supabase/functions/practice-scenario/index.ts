@@ -49,6 +49,29 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
+    // Verify user has premium or admin role
+    const { data: hasRole, error: roleError } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'premium'
+    });
+
+    const { data: isAdmin, error: adminError } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
+    });
+
+    if (roleError || adminError) {
+      console.error('[Internal] Role check error:', roleError || adminError);
+      throw new Error('Failed to verify user permissions');
+    }
+
+    if (!hasRole && !isAdmin) {
+      return new Response(
+        JSON.stringify({ error: 'Premium subscription required for AI practice scenarios' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
