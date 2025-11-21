@@ -22,41 +22,84 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    // Check for existing session first
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+  // Helper function to fetch user role with error handling
+  const fetchUserRole = async (userId: string): Promise<'free' | 'premium' | 'admin'> => {
+    try {
+      const { data: roleData, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
       
-      if (session?.user) {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-        
-        setUserRole(roleData?.role ?? 'free');
-      } else {
-        setUserRole(null);
+      if (error) {
+        console.error('[Auth] Role fetch error:', error);
+        return 'free'; // Default to free on error
       }
       
-      setLoading(false);
-    });
+      return roleData?.role ?? 'free';
+    } catch (error) {
+      console.error('[Auth] Role fetch exception:', error);
+      return 'free'; // Default to free on exception
+    }
+  };
 
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+  useEffect(() => {
+    let mounted = true;
+
+    const initAuth = async () => {
+      try {
+        // Add timeout protection (10 seconds)
+        const authPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth timeout')), 10000)
+        );
+
+        const { data: { session } } = await Promise.race([
+          authPromise,
+          timeoutPromise
+        ]) as { data: { session: Session | null } };
+
+        if (!mounted) return;
+
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          const { data: roleData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', session.user.id)
-            .maybeSingle();
-          
-          setUserRole(roleData?.role ?? 'free');
+          const role = await fetchUserRole(session.user.id);
+          if (mounted) setUserRole(role);
+        } else {
+          setUserRole(null);
+        }
+      } catch (error) {
+        console.error('[Auth] Initialization error:', error);
+        if (mounted) {
+          setSession(null);
+          setUser(null);
+          setUserRole(null);
+          toast({
+            title: "Authentication Error",
+            description: "Unable to verify authentication. Please refresh the page.",
+            variant: "destructive",
+          });
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    initAuth();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
+
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          const role = await fetchUserRole(session.user.id);
+          if (mounted) setUserRole(role);
         } else {
           setUserRole(null);
         }
@@ -65,8 +108,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [toast]);
 
   const signIn = async (email: string, password: string) => {
     try {
